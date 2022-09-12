@@ -29,7 +29,8 @@ env:
   ECR_REPOSITORY: spring-hello-repository
   ECS_SERVICE: spring-hello-service
   ECS_CLUSTER: spring-hello-cluster
-  ECS_TASK_DEFINITION: task-definition.json
+  ECS_TASK_DEFINITION_FILE: task-definition.json
+  ECS_TASK_DEFINITION_NAME: spring-hello-task-definition
   ECS_CONTAINER_NAME: spring-hello-container
 jobs:
   deploy:
@@ -64,14 +65,14 @@ jobs:
           
       - name: Download task definition
         run: |
-          aws ecs describe-task-definition --task-definition ${{ env.ECS_CONTAINER_NAME }} \
-          --query taskDefinition > ${{ env.ECS_TASK_DEFINITION }}
+          aws ecs describe-task-definition --task-definition ${{ env.ECS_TASK_DEFINITION_NAME }} \
+          --query taskDefinition > ${{ env.ECS_TASK_DEFINITION_FILE }}
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
         uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
-          task-definition: ${{ env.ECS_TASK_DEFINITION }}
+          task-definition: ${{ env.ECS_TASK_DEFINITION_FILE }}
           container-name: ${{ env.ECS_CONTAINER_NAME }}
           image: ${{ steps.build-image.outputs.image }}
 
